@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-export interface httpOptions {
+import { Observable } from 'rxjs';
+export interface HttpOptions {
   headers: HttpHeaders;
 }
 
@@ -14,7 +15,6 @@ export class LichessService {
   private MOVE: string;
   private _token: string;
 
-  private _message: string;
   private _gameId!: string;
 
   constructor(
@@ -24,39 +24,30 @@ export class LichessService {
     this.LICHESS_BASE_URL = 'https://lichess.org/';
     this.API_BOARD_GAME = 'api/board/game/';
     this.MOVE = '/move/';
-    this._message = '';
   }
 
   set gameId(lichessUrl: string) {
     this._gameId = lichessUrl.split(this.LICHESS_BASE_URL)[1];
   }
 
-  get message(): string {
-    return this._message;
-  }
-
   set token(token: string) {
     this._token = token;
   }
 
-  private getHttpOptions(token: string): httpOptions {
+  private getHttpMoveOptions(token: string): HttpOptions {
     return {
       headers: new HttpHeaders({ 'Authorization': 'Bearer ' + token })
     };
   }
 
-  private getLichessApiUrl(move: string): string {
+  private getLichessMoveApiUrl(move: string): string {
     return this.LICHESS_BASE_URL + this.API_BOARD_GAME + this._gameId + this.MOVE + move;
   }
 
-  postMove(move: string): void {
-    const url = this.getLichessApiUrl(move);
-    const httpOptions = this.getHttpOptions(this._token);
-    this.http.post(url, null, httpOptions).toPromise()
-      .then(() => {
-        this._message = "ok";
-      }).catch(() => {
-        this._message = "ko";
-      });
+  postMove(move: string): Observable<any> {
+    const url = this.getLichessMoveApiUrl(move);
+    const httpOptions = this.getHttpMoveOptions(this._token);
+    return this.http.post(url, null, httpOptions);
   }
+
 }
