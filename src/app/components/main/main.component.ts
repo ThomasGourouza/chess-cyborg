@@ -2,25 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LichessService } from 'src/app/services/lichess.service';
 import { interval } from 'rxjs/internal/observable/interval';
+import { PlayMoveService } from 'src/app/services/play-move.service';
 
 @Component({
   selector: 'app-main',
-  templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss']
+  templateUrl: './main.component.html'
 })
 export class MainComponent implements OnInit {
 
   public form!: FormGroup;
-  private index: number
-  private moves: Array<string>;
 
   constructor(
     private formBuilder: FormBuilder,
-    private lichessService: LichessService
-  ) { 
-    this.index = 0;
-    this.moves = ['e2e4', 'b1c3', 'g1f3', 'g2g3', 'f1g2', 'e1g1'];
-  }
+    private lichessService: LichessService,
+    private playMoveService: PlayMoveService
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -37,39 +33,38 @@ export class MainComponent implements OnInit {
   }
 
   private onChanges(): void {
-    const token = this.form.get('token');
-    const lichessUrl = this.form.get('lichessUrl');
-    if (!!token) {
-      token.valueChanges.subscribe((token) => {
-        console.log(token);
+    const tokenForm = this.form.get('token');
+    const lichessUrlForm = this.form.get('lichessUrl');
+    if (!!tokenForm) {
+      tokenForm.valueChanges.subscribe((token) => {
         this.lichessService.token = token;
       });
     }
-    if (!!lichessUrl) {
-      lichessUrl.valueChanges.subscribe((lichessUrl) => {
+    if (!!lichessUrlForm) {
+      lichessUrlForm.valueChanges.subscribe((lichessUrl) => {
         this.lichessService.gameId = lichessUrl;
       });
     }
   }
 
-  private spamMoves(): void {
-    const move = this.moves[this.index];
+  private playmove(): void {
+    let move: string;
+    do {
+      move = this.playMoveService.getMove();
+    } while (this.playMoveService.wrongMoves.includes(move));
     this.lichessService.postMove(move).toPromise()
-    .then(() => {
-      this.index++;
-    }).catch(() => {
-      console.log('wait');
-    });
+      .then(() => {
+        this.playMoveService.setFigureOnBoard(move);
+        this.playMoveService.resetWrongMoves();
+      }).catch(() => {
+        this.playMoveService.addWrongMove(move);
+        console.log(this.playMoveService.wrongMoves);
+      });
   }
 
   public onSubmit(): void {
-    const counter = interval(500);
-    const subscription = counter.subscribe(() => {
-      if (this.index < this.moves.length) {
-        this.spamMoves();
-      } else {
-        subscription.unsubscribe();
-      }
+    interval(1000).subscribe(() => {
+      this.playmove();
     });
   }
 

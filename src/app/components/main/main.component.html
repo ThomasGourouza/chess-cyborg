@@ -1,21 +1,26 @@
 <br>
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <div class="form-group">
-        <label for="token">Token (optional)</label>
-        <input type="text" class="form-control" id="token" formControlName="token" />
+<div class="card text-center" style="width: 400px;">
+    <div class="card-header">
+        <h5 class="card-title">Lichess Cyborg</h5>
     </div>
-
-    <div class="form-group">
-        <label for="lichessUrl">Game URL</label>
-        <input type="text" class="form-control" id="lichessUrl" formControlName="lichessUrl" />
+    <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="token">Token (optional)</label>
+                <input type="text" class="form-control" id="token" formControlName="token" />
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="lichessUrl">Game URL</label>
+                <input type="text" class="form-control" id="lichessUrl" formControlName="lichessUrl" />
+            </div>
+            <br>
+            <div class="form-group d-flex justify-content-center">
+                <button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+                    Go !
+                </button>
+            </div>
+        </form>
     </div>
-
-    <br>
-
-    <div class="form-group d-flex justify-content-center">
-        <button class="btn btn-primary" type="submit" [disabled]="form.invalid">
-            Go !
-        </button>
-    </div>
-</form>
+</div>
 <br>
