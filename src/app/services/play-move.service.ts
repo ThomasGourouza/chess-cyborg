@@ -21,7 +21,6 @@ export class PlayMoveService {
     this._columns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
     this._rows = ['1', '2', '3', '4', '5', '6', '7', '8'];
     this._wrongMoves = [];
-    this.initBoard();
   }
 
   get board(): Array<Figure> {
@@ -58,55 +57,58 @@ export class PlayMoveService {
     return figure.column === column && figure.row === row;
   }
 
-  private initBoard(): void {
+  public initBoard(isWhite: boolean): void {
+    this.resetWrongMoves();
+    const pawnsRow = isWhite ? '2' : '7';
+    const figuresRow = isWhite ? '1' : '8';
     this._columns.forEach((col) => {
       this._board.push({
         name: FigureName.P,
         column: col,
-        row: '2'
+        row: pawnsRow
       });
     });
     ['a', 'h'].forEach((col) => {
       this._board.push({
         name: FigureName.R,
         column: col,
-        row: '1'
+        row: figuresRow
       });
     });
     ['b', 'g'].forEach((col) => {
       this._board.push({
         name: FigureName.N,
         column: col,
-        row: '1'
+        row: figuresRow
       });
     });
     ['c', 'f'].forEach((col) => {
       this._board.push({
         name: FigureName.B,
         column: col,
-        row: '1'
+        row: figuresRow
       });
     });
     this._board.push({
       name: FigureName.Q,
       column: 'd',
-      row: '1'
+      row: figuresRow
     });
     this._board.push({
       name: FigureName.K,
       column: 'e',
-      row: '1'
+      row: figuresRow
     });
   }
 
-  public getMove(): string {
+  public getMove(isWhite: boolean): string {
     const randomFigure: Figure = this.getRandomItem(this._board);
     const col = randomFigure.column;
     const row = randomFigure.row;
     let toList: Array<string> = [];
     switch (randomFigure.name) {
       case FigureName.P: {
-        toList = this.getMoveToForPawn(col, row);
+        toList = this.getMoveToForPawn(col, row, isWhite);
         break;
       }
       case FigureName.B: {
@@ -147,21 +149,21 @@ export class PlayMoveService {
     return array[randomIndex];
   }
 
-  private getMoveToForPawn(col: string, row: string): Array<string> {
+  private getMoveToForPawn(col: string, row: string, isWhite: boolean): Array<string> {
+    const oneForward = isWhite ? 1 : -1;
+    const twoForward = isWhite ? 2 : -2;
     const moves: Array<string> = [];
-    const getRow1 = this.get(this._rows, row, 1);
-    if (getRow1 !== 'null') {
-      moves.push(col + getRow1);
-    }
-    if (row === '2') {
-      const getRow2 = this.get(this._rows, row, 2);
+    if ((row === '2' && isWhite) || (row === '7' && !isWhite)) {
+      const getRow2 = this.get(this._rows, row, twoForward);
       if (getRow2 !== 'null') {
         moves.push(col + getRow2);
       }
     }
+    const getRow1 = this.get(this._rows, row, oneForward);
     const getCol1 = this.get(this._columns, col, 1);
     const getColMinus1 = this.get(this._columns, col, -1);
     if (getRow1 !== 'null') {
+      moves.push(col + getRow1);
       if (getCol1 !== 'null') {
         moves.push(getCol1 + getRow1);
       }

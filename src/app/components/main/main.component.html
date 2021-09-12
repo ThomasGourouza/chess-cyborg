@@ -11,14 +11,42 @@
             </div>
             <br>
             <div class="form-group">
+                <div class="row">
+                    <div class="col">
+                        <label class="form-check-label" for="white">
+                            White
+                        </label>
+                        &nbsp;
+                        <input class="form-check-input" type="radio" id="white" formControlName="isWhite" value="true">
+                    </div>
+                    <div class="col">
+                        <label class="form-check-label" for="black">
+                            Black
+                        </label>
+                        &nbsp;
+                        <input class="form-check-input" type="radio" id="black" formControlName="isWhite" value="false">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="form-group">
                 <label for="lichessUrl">Game URL</label>
                 <input type="text" class="form-control" id="lichessUrl" formControlName="lichessUrl" />
             </div>
             <br>
             <div class="form-group d-flex justify-content-center">
-                <button class="btn btn-primary" type="submit" [disabled]="form.invalid">
-                    Go !
-                </button>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-primary" type="submit" [disabled]="form.invalid">
+                            Start
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-danger" (click)="onStop()" [disabled]="!isStarted">
+                            Stop
+                        </button>
+                    </div>
+                </div>
             </div>
         </form>
     </div>

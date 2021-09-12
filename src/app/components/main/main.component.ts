@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LichessService } from 'src/app/services/lichess.service';
 import { interval } from 'rxjs/internal/observable/interval';
 import { PlayMoveService } from 'src/app/services/play-move.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-main',
@@ -11,12 +12,16 @@ import { PlayMoveService } from 'src/app/services/play-move.service';
 export class MainComponent implements OnInit {
 
   public form!: FormGroup;
+  public subscription!: Subscription;
+  public isStarted: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
     private lichessService: LichessService,
     private playMoveService: PlayMoveService
-  ) { }
+  ) {
+    this.isStarted = false;
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -27,6 +32,7 @@ export class MainComponent implements OnInit {
     this.form = this.formBuilder.group(
       {
         token: [''],
+        isWhite: ['', Validators.required],
         lichessUrl: ['', Validators.required]
       }
     );
@@ -47,25 +53,34 @@ export class MainComponent implements OnInit {
     }
   }
 
-  private playmove(): void {
-    let move: string;
-    do {
-      move = this.playMoveService.getMove();
-    } while (this.playMoveService.wrongMoves.includes(move));
-    this.lichessService.postMove(move).toPromise()
-      .then(() => {
-        this.playMoveService.setFigureOnBoard(move);
-        this.playMoveService.resetWrongMoves();
-      }).catch(() => {
-        this.playMoveService.addWrongMove(move);
-        console.log(this.playMoveService.wrongMoves);
-      });
+  private playmove(isWhite: boolean): void {
+    if (this.playMoveService.board.length > 0) {
+      let move: string;
+      do {
+        move = this.playMoveService.getMove(isWhite);
+      } while (this.playMoveService.wrongMoves.includes(move));
+      this.lichessService.postMove(move).toPromise()
+        .then(() => {
+          this.playMoveService.setFigureOnBoard(move);
+          this.playMoveService.resetWrongMoves();
+        }).catch(() => {
+          this.playMoveService.addWrongMove(move);
+        });
+    }
   }
 
   public onSubmit(): void {
-    interval(1000).subscribe(() => {
-      this.playmove();
+    this.isStarted = true;
+    const isWhite = this.form.value['isWhite'];
+    this.playMoveService.initBoard(isWhite);
+    this.subscription = interval(1000).subscribe(() => {
+      this.playmove(isWhite);
     });
+  }
+
+  public onStop(): void {
+    this.isStarted = false;
+    this.subscription.unsubscribe();
   }
 
 }
