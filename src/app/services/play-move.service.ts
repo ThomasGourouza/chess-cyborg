@@ -59,6 +59,7 @@ export class PlayMoveService {
 
   public initBoard(isWhite: boolean): void {
     this.resetWrongMoves();
+    this._board = [];
     const pawnsRow = isWhite ? '2' : '7';
     const figuresRow = isWhite ? '1' : '8';
     this._columns.forEach((col) => {

@@ -71,10 +71,13 @@ export class MainComponent implements OnInit {
 
   public onSubmit(): void {
     this.isStarted = true;
-    const isWhite = this.form.value['isWhite'];
+    const isWhite = (this.form.value['isWhite'] === 'true');
     this.playMoveService.initBoard(isWhite);
-    this.subscription = interval(1000).subscribe(() => {
-      this.playmove(isWhite);
+    this.subscription = interval(1000).subscribe((second) => {
+      this.playmove(isWhite);     
+      if (second%10 === 0) {
+        this.playMoveService.resetWrongMoves();
+      }
     });
   }
 
