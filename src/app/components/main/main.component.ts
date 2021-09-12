@@ -31,7 +31,7 @@ export class MainComponent implements OnInit {
   private initForm(): void {
     this.form = this.formBuilder.group(
       {
-        token: [''],
+        token: ['', Validators.required],
         isWhite: ['', Validators.required],
         lichessUrl: ['', Validators.required]
       }

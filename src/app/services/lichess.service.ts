@@ -13,14 +13,13 @@ export class LichessService {
   private LICHESS_BASE_URL: string;
   private API_BOARD_GAME: string;
   private MOVE: string;
-  private _token: string;
-
+  
+  private _token!: string;
   private _gameId!: string;
 
   constructor(
     private http: HttpClient
   ) {
-    this._token = 'lip_ioVMpN8TZLuwzh0jKySY';
     this.LICHESS_BASE_URL = 'https://lichess.org/';
     this.API_BOARD_GAME = 'api/board/game/';
     this.MOVE = '/move/';
